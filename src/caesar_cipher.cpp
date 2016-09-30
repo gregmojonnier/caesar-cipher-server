@@ -1,10 +1,6 @@
 #include "caesar_cipher.h"
 
 std::string CaesarCipher::Generate(const std::string& message, const int shift) {
-    if (message.empty()) {
-        return message;
-    }
-
     std::string ciphered_message;
     for (const auto& character : message) {
         int shifted_char = int(character) + shift;
