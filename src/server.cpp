@@ -22,25 +22,49 @@ void StartServer() {
         std::cerr << "setup of listening socket failed" << std::endl;
         return;
     }
-    int client_sock = WaitForClientConnection(server_sock);
-    if (client_sock < 0) {
-        std::cout << "accepted socket was bad!" << std::endl;
-        return;
-    }
+    while (true) {
+        std::cout << "Waiting for a new client connection..." << std::endl;
+        int client_sock = WaitForClientConnection(server_sock);
+        if (client_sock < 0) {
+            std::cout << "accepted socket was bad!" << std::endl;
+            return;
+        }
 
-    char buffer[256];
-    int n = read(client_sock, buffer, 255);
+        bool found_space = false;
 
-    if (n < 0) {
-        std::cout << "n less than 0" << std::endl;
-        return;
-    }
-    printf("message is %s", buffer);
-    n = write(client_sock, "i got it", 8);
+        while (!found_space) {
+            char buffer[256];
+            int n = recv(client_sock, buffer, 255, 0);
 
-    if (n < 0) {
-        std::cout << "failed on write" << std::endl;
-        return;
+            if (n == 0) {
+                // client closed connection
+                std::cout << "client closed connection!" << std::endl;
+                break;
+            }
+            if (n < 0) {
+                std::cout << "n less than 0" << std::endl;
+                break;
+            }
+            printf("message is %s", buffer);
+
+            std::cout << std::endl;
+            for (int idx = 0; idx < n; ++idx) {
+                //std::cout << "looking at char " << buffer[idx] << std::endl;
+                if (buffer[idx] == ' ') {
+                    std::cout << "found space!" << std::endl;
+                    found_space = true;
+                }
+            }
+            /*
+               n = send(client_sock, "i got it", 8, MSG_NOSIGNAL);
+
+               if (n < 0) {
+               std::cout << "failed on write" << std::endl;
+               return;
+               }
+               */
+
+        }
     }
 }
 
