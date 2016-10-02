@@ -2,6 +2,7 @@
 
 std::string CaesarCipher::Generate(const std::string& message, const int shift) {
     std::string ciphered_message;
+    ciphered_message.reserve(message.size());
     for (const auto& character : message) {
         int shifted_char = int(character) + shift;
 

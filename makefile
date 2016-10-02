@@ -2,6 +2,8 @@ CXX=clang++
 CXXFLAGS=-Wall -g -std=c++14
 LINK_FLAGS=-lgtest -lgmock -pthread
 
+all: server tests
+
 server: server.o caesar_cipher.o
 	$(CXX) -o server server.o caesar_cipher.o $(LINK_FLAGS)
 
