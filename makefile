@@ -4,11 +4,14 @@ LINK_FLAGS=-lgtest -lgmock -pthread
 
 all: server tests
 
-server: server.o caesar_cipher.o
-	$(CXX) -o server server.o caesar_cipher.o $(LINK_FLAGS)
+server: main.o socket_functions_helper.o
+	$(CXX) -o server main.o socket_functions_helper.o $(LINK_FLAGS)
 
-server.o: src/server.h src/server.cpp
-	$(CXX) $(CXXFLAGS) -c src/server.cpp
+main.o: src/main.cpp src/server.h src/server.cpp
+	$(CXX) $(CXXFLAGS) -c src/main.cpp
+
+socket_functions_helper.o: src/socket_functions_helper.h src/socket_functions_helper.cpp
+	$(CXX) $(CXXFLAGS) -c src/socket_functions_helper.cpp
 
 tests: caesar_cipher_tests.o caesar_cipher.o
 	$(CXX) -o tests test/main.cpp caesar_cipher_tests.o caesar_cipher.o $(LINK_FLAGS)
