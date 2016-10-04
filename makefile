@@ -7,7 +7,7 @@ all: server tests
 server: main.o socket_functions_helper.o
 	$(CXX) -o server main.o socket_functions_helper.o $(LINK_FLAGS)
 
-main.o: src/main.cpp src/server.h src/server.cpp
+main.o: src/main.cpp src/socket_server.h src/socket_server.cpp
 	$(CXX) $(CXXFLAGS) -c src/main.cpp
 
 socket_functions_helper.o: src/socket_functions_helper.h src/socket_functions_helper.cpp
