@@ -52,3 +52,9 @@ int SocketFunctionsHelper::WaitForClientConnection(int server_sock)
 
     return accept(server_sock, (struct sockaddr*)&client_address, &clientlen);
 }
+
+
+int SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len)
+{
+    return recv(sockfd, buf, len, 0);
+}

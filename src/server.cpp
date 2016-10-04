@@ -38,7 +38,7 @@ void SocketServer<T>::StartServer()
 
         while (!found_space) {
             char buffer[256];
-            int n = recv(client_sock, buffer, 255, 0);
+            int n = _socket_functions_helper.WaitForData(client_sock, buffer, 255);
 
             if (n == 0) {
                 // client closed connection

@@ -1,4 +1,5 @@
 #pragma once
+#include <cstddef>
 class SocketFunctionsHelper
 {
     public:
@@ -7,6 +8,7 @@ class SocketFunctionsHelper
 
         int CreateListenerSocket();
         int WaitForClientConnection(int server_sock);
+        int WaitForData(int sockfd, void* buf, std::size_t len);
 
     private:
         const int _port;
