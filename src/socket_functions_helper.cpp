@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-SocketFunctionsHelper::SocketFunctionsHelper(int port) : _port(port)
+SocketFunctionsHelper::SocketFunctionsHelper()
 {
 
 }
@@ -16,7 +16,7 @@ SocketFunctionsHelper::~SocketFunctionsHelper()
 
 }
 
-int SocketFunctionsHelper::CreateListenerSocket()
+int SocketFunctionsHelper::CreateListenerSocket(int port) const
 {
     int sock = socket(PF_INET, SOCK_STREAM, 0);
 
@@ -28,7 +28,7 @@ int SocketFunctionsHelper::CreateListenerSocket()
     struct sockaddr_in server_address;
     memset((char*)&server_address, 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
-    server_address.sin_port = htons(_port);
+    server_address.sin_port = htons(port);
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
     if (bind(sock, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
@@ -45,7 +45,7 @@ int SocketFunctionsHelper::CreateListenerSocket()
 }
 
 
-int SocketFunctionsHelper::WaitForClientConnection(int server_sock)
+int SocketFunctionsHelper::WaitForClientConnection(int server_sock) const
 {
     struct sockaddr_in client_address;
     socklen_t clientlen = sizeof(client_address);
@@ -54,7 +54,7 @@ int SocketFunctionsHelper::WaitForClientConnection(int server_sock)
 }
 
 
-int SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len)
+int SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len) const
 {
     return recv(sockfd, buf, len, 0);
 }

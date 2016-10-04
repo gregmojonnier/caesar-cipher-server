@@ -2,7 +2,7 @@
 #include "socket_functions_helper.h"
 int main(int argc, char *argv[])
 {
-    SocketServer<SocketFunctionsHelper> s(55555);
-    s.StartServer();
+    SocketServer server;
+    server.StartServer(55555);
     return 0;
 }

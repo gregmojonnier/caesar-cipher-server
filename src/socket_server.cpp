@@ -6,39 +6,27 @@
 #include <unistd.h>
 #include <stdio.h>
 
-template <class T>
-SocketServer<T>::SocketServer(const int port) : _socket_functions_helper(port)
+template <class SocketFunctionsWrapper>
+bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wrapper)
 {
-
-}
-
-template <class T>
-SocketServer<T>::~SocketServer()
-{
-
-}
-
-template <class T>
-void SocketServer<T>::StartServer()
-{
-    int server_sock = _socket_functions_helper.CreateListenerSocket();
+    int server_sock = socket_wrapper.CreateListenerSocket(port);
     if (server_sock < 0) {
         std::cerr << "setup of listening socket failed" << std::endl;
-        return;
+        return false;
     }
     while (true) {
         std::cout << "Waiting for a new client connection..." << std::endl;
-        int client_sock = _socket_functions_helper.WaitForClientConnection(server_sock);
+        int client_sock = socket_wrapper.WaitForClientConnection(server_sock);
         if (client_sock < 0) {
             std::cout << "accepted socket was bad!" << std::endl;
-            return;
+            return false;
         }
 
         bool found_space = false;
 
         while (!found_space) {
             char buffer[256];
-            int n = _socket_functions_helper.WaitForData(client_sock, buffer, 255);
+            int n = socket_wrapper.WaitForData(client_sock, buffer, 255);
 
             if (n == 0) {
                 // client closed connection
@@ -70,4 +58,5 @@ void SocketServer<T>::StartServer()
 
         }
     }
+    return true;
 }

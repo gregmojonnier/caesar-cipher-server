@@ -3,13 +3,10 @@
 class SocketFunctionsHelper
 {
     public:
-        SocketFunctionsHelper(const int port);
+        SocketFunctionsHelper();
         virtual ~SocketFunctionsHelper();
 
-        int CreateListenerSocket();
-        int WaitForClientConnection(int server_sock);
-        int WaitForData(int sockfd, void* buf, std::size_t len);
-
-    private:
-        const int _port;
+        int CreateListenerSocket(int port) const;
+        int WaitForClientConnection(int server_sock) const;
+        int WaitForData(int sockfd, void* buf, std::size_t len) const;
 };
