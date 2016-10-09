@@ -54,11 +54,16 @@ int SocketFunctionsHelper::WaitForClientConnection(int server_sock) const
 }
 
 
-int SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len) const
+ssize_t SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len) const
 {
     return recv(sockfd, buf, len, 0);
 }
 void SocketFunctionsHelper::CloseConnection(int sockfd) const
 {
     shutdown(sockfd, SHUT_RDWR);
+}
+
+ssize_t SocketFunctionsHelper::SendData(int sockfd, void* buf, std::size_t len) const
+{
+    return send(sockfd, buf, len, MSG_NOSIGNAL);
 }

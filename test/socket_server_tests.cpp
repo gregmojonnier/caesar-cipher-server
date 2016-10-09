@@ -123,3 +123,20 @@ TEST_F(SocketServerTests, StartServer_ClientDatasFirstWordIsNotANumber_ServerClo
     
     _test_subject.StartServer(55555, _mock_socket_functions);
 }
+
+TEST_F(SocketServerTests, StartServer_ClientSendsACompleteAndValidMessage_ServerResponds)
+{
+    char valid_message[] = "3 a_message_needing_shift_of_three ";
+    size_t data_len = strlen(valid_message);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
+    EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&valid_message),
+                    Return(data_len)
+                )
+        );
+    EXPECT_CALL(_mock_socket_functions, SendData(_, _, _));
+    
+    _test_subject.StartServer(55555, _mock_socket_functions);
+}

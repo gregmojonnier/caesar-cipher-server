@@ -1,5 +1,7 @@
 #pragma once
 #include <cstddef>
+#include <sys/types.h>
+
 class SocketFunctionsHelper
 {
     public:
@@ -8,6 +10,7 @@ class SocketFunctionsHelper
 
         int CreateListenerSocket(int port) const;
         int WaitForClientConnection(int server_sock) const;
-        int WaitForData(int sockfd, void* buf, std::size_t len) const;
+        ssize_t WaitForData(int sockfd, void* buf, std::size_t len) const;
         void CloseConnection(int sockfd) const;
+        ssize_t SendData(int sockfd, void* buf, std::size_t len) const;
 };
