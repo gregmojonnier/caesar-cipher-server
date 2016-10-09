@@ -106,3 +106,20 @@ TEST_F(SocketServerTests, StartServer_ClientSendsDataWithoutSpace_KeepsWaitingFo
     
     _test_subject.StartServer(55555, _mock_socket_functions);
 }
+
+TEST_F(SocketServerTests, StartServer_ClientDatasFirstWordIsNotANumber_ServerClosesConnection)
+{
+    char data_with_non_number_first_word[] = "not_a_number message";
+    size_t data_len = strlen(data_with_non_number_first_word);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
+    EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&data_with_non_number_first_word),
+                    Return(data_len)
+                )
+        );
+    EXPECT_CALL(_mock_socket_functions, CloseConnection(_));
+    
+    _test_subject.StartServer(55555, _mock_socket_functions);
+}

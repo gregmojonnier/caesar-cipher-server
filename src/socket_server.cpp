@@ -38,13 +38,26 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
                 break;
             }
             printf("message is %s", buffer);
-
             std::cout << std::endl;
+
+            //
+            // message format...
+            //      shift_int message
+            //
             for (int idx = 0; idx < n; ++idx) {
-                //std::cout << "looking at char " << buffer[idx] << std::endl;
                 if (buffer[idx] == ' ') {
                     std::cout << "found space!" << std::endl;
                     found_space = true;
+                    char* first_non_numeric_char;
+                    long int shift = strtol(buffer, &first_non_numeric_char, 10);
+                    std::cout << "got shift of " << shift << std::endl;
+
+                    // we've verified there is a space,
+                    // so it should be the first non numeric char if all went well
+                    if (*first_non_numeric_char != ' ') {
+                        socket_wrapper.CloseConnection(client_sock);
+                        break;
+                    }
                 }
             }
             /*

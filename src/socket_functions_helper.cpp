@@ -58,3 +58,7 @@ int SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len) c
 {
     return recv(sockfd, buf, len, 0);
 }
+void SocketFunctionsHelper::CloseConnection(int sockfd) const
+{
+    shutdown(sockfd, SHUT_RDWR);
+}
