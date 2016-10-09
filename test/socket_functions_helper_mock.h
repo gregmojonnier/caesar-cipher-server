@@ -1,10 +1,9 @@
 #pragma once
 #include <cstddef>
+#include <string.h>
 class MockSocketFunctionsHelper
 {
     public:
-        //SocketFunctionsHelper(const int port);
-        //virtual ~SocketFunctionsHelper();
 
         //int CreateListenerSocket();
         MOCK_CONST_METHOD1(CreateListenerSocket, int(int port));
@@ -13,3 +12,8 @@ class MockSocketFunctionsHelper
         //int WaitForData(int sockfd, void* buf, std::size_t len);
         MOCK_CONST_METHOD3(WaitForData, int(int, void* buf, std::size_t len)); 
 };
+
+// Needed a custom action because SetArgPointee won't allow setting a void*, which happens to be apart of the socket interface
+ACTION_P(SetIncomingClientData, param) {
+    memcpy(arg1, param, (size_t)sizeof param); 
+}

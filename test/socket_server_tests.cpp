@@ -6,6 +6,7 @@
 
 using ::testing::_;
 using ::testing::Return;
+using ::testing::DoAll;
 
 class SocketServerTests : public ::testing::Test {
     protected:
@@ -19,9 +20,12 @@ class SocketServerTests : public ::testing::Test {
             ::testing::DefaultValue<int>::Clear();
         }
 
-        void EXPECT_DEFAULT_CLIENT_CONNECTION() {
+        void EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT() {
+            // one client connects, then next client connection is bad(-1) exiting server
             EXPECT_CALL(_mock_socket_functions, CreateListenerSocket(_));
-            EXPECT_CALL(_mock_socket_functions, WaitForClientConnection(_));
+            EXPECT_CALL(_mock_socket_functions, WaitForClientConnection(_))
+                .WillOnce(Return(1))
+                .WillOnce(Return(-1));
         }
 
     SocketServer _test_subject;
@@ -77,27 +81,28 @@ TEST_F(SocketServerTests, StartServer_ClientConnects_ClientFdIsUsedToWaitForData
 
 TEST_F(SocketServerTests, StartServer_ClientClosesConnection_WaitsForNextClient)
 {
-    ::testing::InSequence seq;
-    EXPECT_DEFAULT_CLIENT_CONNECTION();
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
     EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
         .WillOnce(Return(0));
-    EXPECT_CALL(_mock_socket_functions, WaitForClientConnection(_))
-        .WillOnce(Return(-1));
     
     _test_subject.StartServer(55555, _mock_socket_functions);
 }
 
 
-/*
-TEST_F(SocketServerTests, StartServer_ClientClosesConnection_WaitsForNextClient)
+TEST_F(SocketServerTests, StartServer_ClientSendsDataWithoutSpace_KeepsWaitingForMoreDataUntilSpaceIsSeen)
 {
-    ::testing::InSequence seq;
-    EXPECT_DEFAULT_CLIENT_CONNECTION();
+    char data_without_space[] = "abcdef";
+    size_t data_len = strlen(data_without_space);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
     EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
-        .WillOnce(Return(0));
-    EXPECT_CALL(_mock_socket_functions, WaitForClientConnection(_))
-        .WillOnce(Return(-1));
+        .Times(2)
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&data_without_space),
+                    Return(data_len)
+                )
+        )
+        .WillRepeatedly(Return(-1));
     
     _test_subject.StartServer(55555, _mock_socket_functions);
 }
-*/
