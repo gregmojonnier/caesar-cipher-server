@@ -13,8 +13,8 @@ class MockSocketFunctionsHelper
         MOCK_CONST_METHOD3(WaitForData, ssize_t(int, void* buf, std::size_t len)); 
         //void CloseConnection(int sockfd);
         MOCK_CONST_METHOD1(CloseConnection, void(int));
-        //ssize_t SocketFunctionsHelper::SendData(int sockfd, void* buf, std::size_t len) const
-        MOCK_CONST_METHOD3(SendData, ssize_t(int, void*, std::size_t));
+        //ssize_t SocketFunctionsHelper::SendData(int sockfd, char const* buf, std::size_t len) const
+        MOCK_CONST_METHOD3(SendData, ssize_t(int, char const*, std::size_t));
 };
 
 // Needed a custom action because SetArgPointee won't allow setting a void*, which happens to be apart of the socket interface

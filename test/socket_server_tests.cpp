@@ -7,6 +7,7 @@
 using ::testing::_;
 using ::testing::Return;
 using ::testing::DoAll;
+using ::testing::StrEq;
 
 class SocketServerTests : public ::testing::Test {
     protected:
@@ -137,6 +138,23 @@ TEST_F(SocketServerTests, StartServer_ClientSendsACompleteAndValidMessage_Server
                 )
         );
     EXPECT_CALL(_mock_socket_functions, SendData(_, _, _));
+    
+    _test_subject.StartServer(55555, _mock_socket_functions);
+}
+
+TEST_F(SocketServerTests, StartServer_ClientRequestsAShiftOfZero_ServerRespondsWithTheUnchangedMessage)
+{
+    char message_with_shift_of_zero[] = "0 a_message_needing_shift_of_zero ";
+    size_t data_len = strlen(message_with_shift_of_zero);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
+    EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&message_with_shift_of_zero),
+                    Return(data_len)
+                )
+        );
+    EXPECT_CALL(_mock_socket_functions, SendData(_, StrEq("a_message_needing_shift_of_zero "), _));
     
     _test_subject.StartServer(55555, _mock_socket_functions);
 }

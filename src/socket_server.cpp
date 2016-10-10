@@ -22,10 +22,10 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
             return false;
         }
 
-        bool found_space = false;
+        bool process_messages = true;
         bool is_word_a_shift_number = true;
 
-        while (!found_space) {
+        while (process_messages) {
             char buffer[256];
             ssize_t num_bytes = socket_wrapper.WaitForData(client_sock, buffer, 255);
 
@@ -40,28 +40,38 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
             // message format...
             //      shift_int message
             //
-            for (int char_idx = 0; char_idx < num_bytes; ++char_idx) {
-                if (buffer[char_idx] == ' ') {
-                    std::cout << "found space!" << std::endl;
-                    found_space = true;
+            //
+            bool is_last_word_complete = false;
+            std::vector<char*> words = SplitMessageIntoWordsBySpaces(buffer, is_last_word_complete);
 
-                    if (is_word_a_shift_number) {
-                        char* first_non_numeric_char;
-                        long int shift = strtol(buffer, &first_non_numeric_char, 10);
-                        std::cout << "got shift of " << shift << std::endl;
-                        // we've verified there is a space,
-                        // so it should be the first non numeric char if all went well
-                        if (*first_non_numeric_char != ' ') {
-                            socket_wrapper.CloseConnection(client_sock);
-                            break;
-                        }
-                        is_word_a_shift_number = false;
-                    } else {
-                        // message
-                        char response[] = "abc";
-                        socket_wrapper.SendData(client_sock, response, 3);
+            long int shift;
+            size_t last_word_idx = (!words.empty()) ? (words.size() - 1) : 0;
+            for (int i = 0; i < words.size(); ++i) {
+                char* word = words[i];
+                if (i == last_word_idx && !is_last_word_complete) {
+                    // TODO handle incomplete words
+                    break;
+                }
+
+                if (is_word_a_shift_number) {
+                    // shift
+                    char* first_non_numeric_char;
+                    shift = strtol(word, &first_non_numeric_char, 10);
+                    std::cout << "got shift of " << shift << std::endl;
+                    char* words_null_terminator = word + strlen(word);
+                    if (first_non_numeric_char != words_null_terminator) {
+                        socket_wrapper.CloseConnection(client_sock);
+                        process_messages = false;
                         break;
                     }
+                    is_word_a_shift_number = false;
+                } else {
+                    // message
+                    std::string res = _caesar_cipher.Generate(word, shift) + " ";
+                    socket_wrapper.SendData(client_sock, res.c_str(), res.size());
+                    is_word_a_shift_number = true;
+                    process_messages = false;
+                    break;
                 }
             }
         }
@@ -69,3 +79,31 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
     return true;
 }
 
+std::vector<char*> SocketServer::SplitMessageIntoWordsBySpaces(char* buffer, bool& is_last_word_complete)
+{
+    std::vector<char*> split_words;
+    is_last_word_complete = false;
+    bool is_buffer_invalid = buffer == NULL;
+    char* full_buffer_null_terminator = (is_buffer_invalid) ? NULL : (buffer + strlen(buffer));
+
+    if (is_buffer_invalid || buffer == full_buffer_null_terminator) {
+        return split_words;
+    }
+
+    char* word;
+    word = strtok(buffer," ");
+    while (word != NULL)
+    {
+        split_words.push_back(word);
+        printf ("%s\n",word);
+        word = strtok(NULL, " ");
+    }
+
+    char* last_word = split_words.back();
+    char* last_word_null_terminator = last_word + strlen(last_word);
+    if (last_word_null_terminator != full_buffer_null_terminator) {
+        is_last_word_complete = true;
+    }
+   
+    return split_words;
+}

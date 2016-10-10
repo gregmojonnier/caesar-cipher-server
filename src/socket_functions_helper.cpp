@@ -63,7 +63,7 @@ void SocketFunctionsHelper::CloseConnection(int sockfd) const
     shutdown(sockfd, SHUT_RDWR);
 }
 
-ssize_t SocketFunctionsHelper::SendData(int sockfd, void* buf, std::size_t len) const
+ssize_t SocketFunctionsHelper::SendData(int sockfd, char const* buf, std::size_t len) const
 {
     return send(sockfd, buf, len, MSG_NOSIGNAL);
 }
