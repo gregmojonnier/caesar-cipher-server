@@ -158,3 +158,54 @@ TEST_F(SocketServerTests, StartServer_ClientRequestsAShiftOfZero_ServerRespondsW
     
     _test_subject.StartServer(55555, _mock_socket_functions);
 }
+
+TEST_F(SocketServerTests, StartServer_ClientRequestsAShiftOfOne_ServerRespondsWithMessageShiftedOne)
+{
+    char message_with_shift_of_zero[] = "1 abc ";
+    size_t data_len = strlen(message_with_shift_of_zero);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
+    EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&message_with_shift_of_zero),
+                    Return(data_len)
+                )
+        );
+    EXPECT_CALL(_mock_socket_functions, SendData(_, StrEq("bcd "), _));
+    
+    _test_subject.StartServer(55555, _mock_socket_functions);
+}
+
+TEST_F(SocketServerTests, StartServer_ClientRequestsAShiftOfNegativeOne_ServerRespondsWithMessageShiftedNegativeOne)
+{
+    char message_with_shift_of_zero[] = "-1 bcd ";
+    size_t data_len = strlen(message_with_shift_of_zero);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
+    EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&message_with_shift_of_zero),
+                    Return(data_len)
+                )
+        );
+    EXPECT_CALL(_mock_socket_functions, SendData(_, StrEq("abc "), _));
+    
+    _test_subject.StartServer(55555, _mock_socket_functions);
+}
+
+TEST_F(SocketServerTests, StartServer_ClientSendsMessageWithMultipleRequests_ServerRespondsToAllRequestsCorrectly)
+{
+    char message_with_shift_of_zero[] = "1 abc -1 bcd ";
+    size_t data_len = strlen(message_with_shift_of_zero);
+    EXPECT_ONE_ClIENT_CONNECTION_THEN_EXIT();
+    EXPECT_CALL(_mock_socket_functions, WaitForData(_, _, _))
+        .WillOnce(
+                DoAll(
+                    SetIncomingClientData(&message_with_shift_of_zero),
+                    Return(data_len)
+                )
+        );
+    EXPECT_CALL(_mock_socket_functions, SendData(_, StrEq("bcd abc "), _));
+    
+    _test_subject.StartServer(55555, _mock_socket_functions);
+}

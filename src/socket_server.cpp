@@ -44,6 +44,7 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
             bool is_last_word_complete = false;
             std::vector<char*> words = SplitMessageIntoWordsBySpaces(buffer, is_last_word_complete);
 
+            std::string response;
             long int shift;
             size_t last_word_idx = (!words.empty()) ? (words.size() - 1) : 0;
             for (int i = 0; i < words.size(); ++i) {
@@ -67,12 +68,15 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
                     is_word_a_shift_number = false;
                 } else {
                     // message
-                    std::string res = _caesar_cipher.Generate(word, shift) + " ";
-                    socket_wrapper.SendData(client_sock, res.c_str(), res.size());
+                    response += _caesar_cipher.Generate(word, shift) + " ";
                     is_word_a_shift_number = true;
                     process_messages = false;
-                    break;
+                    continue;
                 }
+            }
+
+            if (!response.empty()) {
+                socket_wrapper.SendData(client_sock, response.c_str(), response.size());
             }
         }
     }
