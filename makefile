@@ -13,11 +13,8 @@ main.o: src/main.cpp src/socket_server.h src/socket_server.cpp caesar_cipher.o
 socket_functions_helper.o: src/socket_functions_helper.h src/socket_functions_helper.cpp
 	$(CXX) $(CXXFLAGS) -c src/socket_functions_helper.cpp
 
-tests: caesar_cipher_tests.o caesar_cipher.o socket_server_tests.o socket_functions_helper.o caesar_cipher_data_interpreter.o caesar_cipher_data_interpreter_tests.o
-	$(CXX) -o tests test/main.cpp caesar_cipher_tests.o caesar_cipher.o caesar_cipher_data_interpreter.o caesar_cipher_data_interpreter_tests.o socket_server_tests.o socket_functions_helper.o $(LINK_FLAGS)
-
-socket_server_tests.o: test/socket_server_tests.cpp test/socket_functions_helper_mock.h
-	$(CXX) $(CXXFLAGS) -c test/socket_server_tests.cpp
+tests: caesar_cipher_tests.o caesar_cipher.o socket_functions_helper.o caesar_cipher_data_interpreter.o caesar_cipher_data_interpreter_tests.o
+	$(CXX) -o tests test/main.cpp caesar_cipher_tests.o caesar_cipher.o caesar_cipher_data_interpreter.o caesar_cipher_data_interpreter_tests.o socket_functions_helper.o $(LINK_FLAGS)
 
 caesar_cipher_tests.o: test/caesar_cipher_tests.cpp
 	$(CXX) $(CXXFLAGS) -c test/caesar_cipher_tests.cpp

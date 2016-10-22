@@ -28,8 +28,8 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
         std::unique_ptr<IDataInterpreter> data_interpreter = std::make_unique<CaesarCipherDataInterpreter>();
         bool process_messages = true;
         while (process_messages) {
-            char buffer[256];
-            ssize_t num_bytes = socket_wrapper.WaitForData(client_sock, buffer, 255);
+            char buffer[512];
+            ssize_t num_bytes = socket_wrapper.WaitForData(client_sock, buffer, 511);
             if (num_bytes <= 0) {
                 std::cout << ((num_bytes == 0) ? "client closed connection!" : "error waiting for data!") << std::endl;
                 break;
@@ -41,8 +41,6 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
                 std::string response = data_interpreter->InterpretWordsAndDetermineResponse(complete_words);
                 if (!response.empty()) {
                     socket_wrapper.SendData(client_sock, response.c_str(), response.size());
-                    process_messages = false;
-                    break;
                 }
             } catch(const InvalidShiftException& e) {
                 std::cout << e.what();
