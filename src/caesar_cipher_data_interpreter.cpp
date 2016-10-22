@@ -39,7 +39,7 @@ std::vector<std::string> CaesarCipherDataInterpreter::SplitDataIntoCompleteWords
         _partial_word.clear();
 
     if (start_idx != data.size())
-        _partial_word += data.substr(start_idx);
+        _partial_word = data.substr(start_idx);
 
     return words;
 }
