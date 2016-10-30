@@ -6,8 +6,8 @@ class SocketServer
         SocketServer() = default;
         ~SocketServer() = default;
 
-        template<class SocketFunctionsWrapper=SocketFunctionsHelper>
-        bool StartServer(int port, const SocketFunctionsWrapper& socket_wrapper=SocketFunctionsWrapper());
-};
+        bool StartServer(int port);
 
-#include "socket_server.cpp"
+    private:
+        SocketFunctionsHelper _socket_wrapper;
+};
