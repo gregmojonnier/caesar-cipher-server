@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <memory>
 #include "caesar_cipher_data_interpreter.h"
+#include <errno.h>
 
 template <class SocketFunctionsWrapper>
 bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wrapper)
@@ -24,14 +25,23 @@ bool SocketServer::StartServer(int port, const SocketFunctionsWrapper& socket_wr
             std::cout << "accepted socket was bad!" << std::endl;
             return false;
         }
+        socket_wrapper.SetReceiveDataTimeoutInSeconds(client_sock, 1.5);
 
         std::unique_ptr<IDataInterpreter> data_interpreter = std::make_unique<CaesarCipherDataInterpreter>();
         bool process_messages = true;
         while (process_messages) {
             char buffer[512];
             ssize_t num_bytes = socket_wrapper.WaitForData(client_sock, buffer, 511);
-            if (num_bytes <= 0) {
+            if (num_bytes == 0) {
                 std::cout << ((num_bytes == 0) ? "client closed connection!" : "error waiting for data!") << std::endl;
+                break;
+            } else if (num_bytes == -1) {
+                if (errno == EAGAIN || errno == EWOULDBLOCK) {
+                    std::cout << "Timed out the max number of times, closing connection!" << std::endl;
+                    socket_wrapper.CloseConnection(client_sock);
+                    break;
+                }
+                std::cerr << "An error on reading data." << std::endl;
                 break;
             }
 

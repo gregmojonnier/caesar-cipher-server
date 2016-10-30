@@ -5,16 +5,7 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
-
-SocketFunctionsHelper::SocketFunctionsHelper()
-{
-
-}
-
-SocketFunctionsHelper::~SocketFunctionsHelper()
-{
-
-}
+#include <cmath>
 
 int SocketFunctionsHelper::CreateListenerSocket(int port) const
 {
@@ -53,6 +44,18 @@ int SocketFunctionsHelper::WaitForClientConnection(int server_sock) const
     return accept(server_sock, (struct sockaddr*)&client_address, &clientlen);
 }
 
+void SocketFunctionsHelper::SetReceiveDataTimeoutInSeconds(int client_sock, double timeout) const
+{
+    double fraction, whole_number;
+
+    fraction = std::modf(timeout, &whole_number);
+
+    struct timeval tv;
+    tv.tv_sec = whole_number;
+    tv.tv_usec = fraction * 1000000; // conv to microseconds
+
+    setsockopt(client_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
+}
 
 ssize_t SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len) const
 {
