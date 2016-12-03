@@ -1,6 +1,7 @@
 #include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/signal.h>
 #include <netinet/in.h>
 #include <string.h>
 #include <unistd.h>
@@ -17,6 +18,9 @@ bool SocketServer::StartServer(int port)
         std::cerr << "setup of listening socket failed" << std::endl;
         return false;
     }
+
+    // don't care when our children exit, and don't want to create zombie processes, so ignore SIGCHLD
+    signal(SIGCHLD, SIG_IGN);
 
     // parent listener loop to solely wait for client connections
     // children processes handle the actual parsing, interpretation, and responding

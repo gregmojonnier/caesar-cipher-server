@@ -17,12 +17,12 @@ int SocketFunctionsHelper::CreateListenerSocket(int port) const
     }
 
     struct sockaddr_in server_address;
-    memset((char*)&server_address, 0, sizeof(server_address));
+    memset(reinterpret_cast<char*>(&server_address), 0, sizeof(server_address));
     server_address.sin_family = AF_INET;
     server_address.sin_port = htons(port);
     server_address.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(sock, (struct sockaddr *)&server_address, sizeof(server_address)) < 0) {
+    if (bind(sock, reinterpret_cast<struct sockaddr *>(&server_address), sizeof(server_address)) < 0) {
         std::cerr << "unable to bind" << std::endl;
         return sock;
     }
@@ -41,7 +41,7 @@ int SocketFunctionsHelper::WaitForClientConnection(int server_sock) const
     struct sockaddr_in client_address;
     socklen_t clientlen = sizeof(client_address);
 
-    return accept(server_sock, (struct sockaddr*)&client_address, &clientlen);
+    return accept(server_sock, reinterpret_cast<struct sockaddr*>(&client_address), &clientlen);
 }
 
 void SocketFunctionsHelper::SetReceiveDataTimeoutInSeconds(int client_sock, double timeout) const
@@ -54,7 +54,7 @@ void SocketFunctionsHelper::SetReceiveDataTimeoutInSeconds(int client_sock, doub
     tv.tv_sec = whole_number;
     tv.tv_usec = fraction * 1000000; // conv to microseconds
 
-    setsockopt(client_sock, SOL_SOCKET, SO_RCVTIMEO, (char *)&tv,sizeof(struct timeval));
+    setsockopt(client_sock, SOL_SOCKET, SO_RCVTIMEO, &tv,sizeof(struct timeval));
 }
 
 ssize_t SocketFunctionsHelper::WaitForData(int sockfd, void* buf, std::size_t len) const

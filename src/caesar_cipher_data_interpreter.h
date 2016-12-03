@@ -5,7 +5,7 @@
 
 class CaesarCipherDataInterpreter : public IDataInterpreter {
     public:
-        CaesarCipherDataInterpreter() {_is_shift = true;}
+        CaesarCipherDataInterpreter();
         ~CaesarCipherDataInterpreter() = default;
 
         std::vector<std::string> SplitDataIntoCompleteWords(char* buffer, std::size_t num_bytes) override;
@@ -17,8 +17,6 @@ class CaesarCipherDataInterpreter : public IDataInterpreter {
         std::string _partial_word;
         CaesarCipher _caesar_cipher;
 };
-
- 
  
 class InvalidShiftException: public std::invalid_argument
 {

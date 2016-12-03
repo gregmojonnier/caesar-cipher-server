@@ -2,6 +2,10 @@
 #include <cstring>
 #include <sstream>
 
+CaesarCipherDataInterpreter::CaesarCipherDataInterpreter() : _is_shift(true)
+{
+}
+
 std::vector<std::string> CaesarCipherDataInterpreter::SplitDataIntoCompleteWords(char* buffer, std::size_t num_bytes)
 {
     std::vector<std::string> words;
